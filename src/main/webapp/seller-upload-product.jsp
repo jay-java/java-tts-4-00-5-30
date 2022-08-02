@@ -1,3 +1,4 @@
+<%@page import="model.Seller"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -27,6 +28,15 @@
 </head>
 
 <body>
+<%
+Seller s =null;
+if(session.getAttribute("data")!=null){
+	s= (Seller)session.getAttribute("data");
+}
+else{
+	response.sendRedirect("seller-login.jsp");
+}
+%>
     <!-- Page Preloder -->
     <div id="preloder">
         <div class="loader"></div>
@@ -63,7 +73,7 @@
     <!-- Offcanvas Menu End -->
 
      <!-- Header Section Begin -->
-    <header class="header">
+       <header class="header">
         <div class="header__top">
             <div class="container">
                 <div class="row">
@@ -101,18 +111,18 @@
                 <div class="col-lg-6 col-md-6">
                     <nav class="header__menu mobile-menu">
                         <ul>
-                            <li class="active"><a href="index.jsp">Home</a></li>
-                            <li><a href="#">Registration</a>
+                            <li class="active"><a href="seller-index.jsp">Home</a></li>
+                            <li><a href="#">Product</a>
                                 <ul class="dropdown">
-                                    <li><a href="customer-registration.jsp">Customer</a></li>
-                                    <li><a href="seller-registration.jsp">Seller</a></li>
+                                    <li><a href="seller-upload-product.jsp">Upload Product</a></li>
+                                    <li><a href="seller-manage-product.jsp">Manage Product</a></li>
                                 </ul>
                             </li>
-                            <li><a href="#">Login</a>
+                            <li><a href="#"><%=s.getName() %></a>
                                 <ul class="dropdown">
-                                    <li><a href="customer-login.jsp">Customer</a></li>
-                                    <li><a href="seller-login.jsp">Seller</a></li>
-                                    <li><a href="admin-login.jsp">Admin</a></li>
+                                    <li><a href="customer-login.jsp">Profile</a></li>
+                                    <li><a href="seller-login.jsp">Change Password</a></li>
+                                    <li><a href="admin-login.jsp">Logout</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -139,30 +149,30 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="contact__text">
                         <div class="section-title">
-                            <h2>Seller Login</h2><br>
-                            <h4>
-                            	<%String msg = (String)request.getAttribute("msg"); %>
-                           		<% 
-                           			if(msg!=null){
-                           				out.print(msg);
-                           			}
-                           		%>
-                            </h4>
+                            <h2>Upload Product</h2>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="contact__form">
-                        <form action="SellerController" method="post">
+                        <form action="ProductController" method="post" enctype="multipart/form-data">
                             <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="email" placeholder="Email" name="email">
+                            	<input type="hidden" name="sid" value="<%=s.getId()%>">
+                             <div class="col-lg-12">
+                                    <input type="file" placeholder="Product Image" name="image">
                                 </div>
                                 <div class="col-lg-12">
-                                    <input type="password" placeholder="Password" name="password">
+                                    <input type="text" placeholder="Product Name" name="pname">
                                 </div>
+                                 <div class="col-lg-12">
+                                    <input type="text" placeholder="Product Price" name="pprice">
+                                </div>
+                                 <div class="col-lg-12">
+                                    <input type="text" placeholder="Product Category" name="pcategory">
+                                </div>
+                                
                                 <div class="col-lg-12">
-                                    <button type="submit" class="site-btn" name="action" value="login">Login</button>
+                                    <button type="submit" class="site-btn" name="action" value="upload product">Upload Product</button>
                                 </div>
                             </div>
                         </form>

@@ -6,6 +6,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import dao.SellerDao;
 import model.Seller;
@@ -50,6 +51,21 @@ public class SellerController extends HttpServlet {
 			SellerDao.insertSeller(s);
 			request.setAttribute("msg", "data inserted successfully");
 			request.getRequestDispatcher("seller-login.jsp").forward(request, response);
+		}
+		else if(action.equalsIgnoreCase("login")) {
+			Seller s = new Seller();
+			s.setEmail(request.getParameter("email"));
+			s.setPassword(request.getParameter("password"));
+			Seller s1 = SellerDao.checkSellerLogin(s);
+			if(s1==null) {
+				request.setAttribute("msg", "email or passwoprd is incorrect");
+				request.getRequestDispatcher("seller-login.jsp").forward(request, response);
+			}
+			else {
+				HttpSession session = request.getSession();
+				session.setAttribute("data", s1);
+				request.getRequestDispatcher("seller-index.jsp").forward(request, response);
+			}
 		}
 	}
 }

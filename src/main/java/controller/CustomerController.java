@@ -1,6 +1,8 @@
 package controller;
 
 import java.io.IOException;
+import java.util.Random;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +14,7 @@ import dao.CustomerDao;
 import dao.SellerDao;
 import model.Customer;
 import model.Seller;
+import services.Services;
 
 /**
  * Servlet implementation class CustomerController
@@ -19,30 +22,34 @@ import model.Seller;
 @WebServlet("/CustomerController")
 public class CustomerController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public CustomerController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public CustomerController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		String action = request.getParameter("action");
 		System.out.println(action);
-		if(action.equalsIgnoreCase("register")) {
+		if (action.equalsIgnoreCase("register")) {
 			Customer c = new Customer();
 			c.setName(request.getParameter("name"));
 			c.setContact(Long.parseLong(request.getParameter("contact")));
@@ -53,23 +60,20 @@ public class CustomerController extends HttpServlet {
 			CustomerDao.insertCustomer(c);
 			request.setAttribute("msg", "data inserted successfully");
 			request.getRequestDispatcher("customer-login.jsp").forward(request, response);
-		}
-		else if(action.equalsIgnoreCase("login")) {
-			Customer c  =new Customer();
+		} else if (action.equalsIgnoreCase("login")) {
+			Customer c = new Customer();
 			c.setEmail(request.getParameter("email"));
 			c.setPassword(request.getParameter("password"));
 			Customer c1 = CustomerDao.checkCustomerLogin(c);
-			if(c1 == null) {
+			if (c1 == null) {
 				request.setAttribute("login", "email or password is incorrect");
 				request.getRequestDispatcher("customer-login.jsp").forward(request, response);
-			}
-			else{
+			} else {
 				HttpSession session = request.getSession();
 				session.setAttribute("data", c1);
 				request.getRequestDispatcher("customer-index.jsp").forward(request, response);
 			}
-		}
-		else if(action.equalsIgnoreCase("update")) {
+		} else if (action.equalsIgnoreCase("update")) {
 			Customer c = new Customer();
 			c.setId(Integer.parseInt(request.getParameter("id")));
 			c.setName(request.getParameter("name"));
@@ -80,26 +84,67 @@ public class CustomerController extends HttpServlet {
 			HttpSession session = request.getSession();
 			session.setAttribute("data", c);
 			request.getRequestDispatcher("customer-profile.jsp").forward(request, response);
-		}
-		else if(action.equalsIgnoreCase("change password")) {
+		} else if (action.equalsIgnoreCase("change password")) {
 			int id = Integer.parseInt(request.getParameter("id"));
 			String op = request.getParameter("op");
 			String np = request.getParameter("np");
 			String cnp = request.getParameter("cnp");
 			boolean flag = CustomerDao.checkOlPassword(id, op);
-			if(flag == true) {
-				if(np.equals(cnp)) {
+			if (flag == true) {
+				if (np.equals(cnp)) {
 					CustomerDao.udpatePassword(np, id);
 					response.sendRedirect("customer-index.jsp");
-				}
-				else {
+				} else {
 					request.setAttribute("msg1", "new password and confirm new password not matched");
 					request.getRequestDispatcher("customer-change-password.jsp").forward(request, response);
 				}
-			}
-			else {
+			} else {
 				request.setAttribute("msg", "old password is not correct");
 				request.getRequestDispatcher("customer-change-password.jsp").forward(request, response);
+			}
+		} else if (action.equalsIgnoreCase("get otp")) {
+			String email = request.getParameter("email");
+			boolean flag = CustomerDao.checkEmail(email);
+			System.out.println(flag);
+			if (flag == true) {
+				Services s = new Services();
+				Random r = new Random();
+				int num = r.nextInt(9999);
+				System.out.println(num);
+				s.sendMail(email, num);
+				System.out.println(email+num);
+				request.setAttribute("email", email);
+				request.setAttribute("otp", num);
+				request.getRequestDispatcher("customer-verify-otp.jsp").forward(request, response);
+			} else {
+				request.setAttribute("msg", "email id not registerd");
+				request.getRequestDispatcher("customer-forgot-password.jsp").forward(request, response);
+			}
+		} else if (action.equalsIgnoreCase("verify")) {
+			String email = request.getParameter("email");
+			int otp1 = Integer.parseInt(request.getParameter("otp1"));
+			int otp2 = Integer.parseInt(request.getParameter("otp2"));
+			System.out.println(email+otp1+otp2);
+			if (otp1==otp2) {
+				request.setAttribute("email", email);
+				request.getRequestDispatcher("customer-new-password.jsp").forward(request, response);
+			} else {
+				request.setAttribute("validate", "otp not matched");
+				request.getRequestDispatcher("customer-verify-otp.jsp").forward(request, response);
+			}
+		}
+		else if(action.equalsIgnoreCase("new password")) {
+			String email = request.getParameter("email");
+			String np = request.getParameter("np");
+			String cnp = request.getParameter("cnp");
+			System.out.println(email+np+cnp);
+			if(np.equals(cnp)) {
+				CustomerDao.newPassword(np, email);
+				response.sendRedirect("customer-login.jsp");
+			}
+			else {
+				request.setAttribute("msg", "new password and confirm new ppassword not matched");
+				request.getRequestDispatcher("customer-new-password.jsp").forward(request, response);
 			}
 		}
 	}

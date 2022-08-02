@@ -139,34 +139,37 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="contact__text">
                         <div class="section-title">
-                            <h2>Seller Login</h2><br>
-                            <h4>
-                            	<%String msg = (String)request.getAttribute("msg"); %>
-                           		<% 
-                           			if(msg!=null){
-                           				out.print(msg);
-                           			}
-                           		%>
+                            <h2>New Password</h2>
+                              <h4>
                             </h4>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="contact__form">
-                        <form action="SellerController" method="post">
+                        <form action="CustomerController" method="post">
                             <div class="row">
+                            <%String email = (String)request.getAttribute("email"); %>
+                               	<input type="hidden" name="email" value=<%=email %>>
                                 <div class="col-lg-12">
-                                    <input type="email" placeholder="Email" name="email">
+                                    <input type="password" placeholder="New Password" name="np">
                                 </div>
                                 <div class="col-lg-12">
-                                    <input type="password" placeholder="Password" name="password">
+                                    <input type="password" placeholder="Confirm New Password" name="cnp">
                                 </div>
                                 <div class="col-lg-12">
-                                    <button type="submit" class="site-btn" name="action" value="login">Login</button>
+                                    <button type="submit" class="site-btn" name="action" value="new password">New Password</button>
+                                </div>
+                                <div class="col-lg-12">
+                                <%String msg = (String)request.getAttribute("msg");%>
+                                <%if(msg!=null){ %>
+                                	<h4><%out.print(msg); %></h4>
+                                <%} %>
                                 </div>
                             </div>
                         </form>
                     </div>
+                            <h4><a href="customer-forgot-password.jsp">Forgot Password ?</a></h4>
                 </div>
             </div>
         </div>

@@ -93,4 +93,34 @@ public class CustomerDao {
 			e.printStackTrace();
 		}
 	}
+	public static boolean checkEmail(String email) {
+		boolean flag  =false;
+		try {
+			Connection conn = DBConnection.createConnection();
+			String sql="select * from customer where email=?";
+			PreparedStatement pst = conn.prepareStatement(sql);
+			pst.setString(1, email);
+			ResultSet rs = pst.executeQuery();
+			if(rs.next()) {
+				flag = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return flag;
+	}
+	public static void newPassword(String np,String email) {
+		try {
+			Connection conn = DBConnection.createConnection();
+			String sql="update customer set password=? where email=?";
+			PreparedStatement pst = conn.prepareStatement(sql);
+			pst.setString(1, np);
+			pst.setString(2, email);
+			System.out.println(np+email);
+			pst.executeUpdate();
+			System.out.println("password changed");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
